@@ -213,13 +213,25 @@ func (k *keycloakAuth) redirectToKeycloak(rw http.ResponseWriter, req *http.Requ
 		"openid-connect",
 		"auth",
 	)
-	redirectURL.RawQuery = url.Values{
-		"response_type": {"code"},
-		"client_id":     {k.ClientID},
-		"redirect_uri":  {originalURL},
-		"state":         {stateBase64},
-		"scope":				 {k.Scope},
-	}.Encode()
+
+    if k.KcIdpHint != "" {
+	    redirectURL.RawQuery = url.Values{
+		    "response_type": {"code"},
+		    "client_id":     {k.ClientID},
+		    "redirect_uri":  {originalURL},
+		    "state":         {stateBase64},
+		    "scope":         {k.Scope},
+		    "kc_idp_hint":   {k.KcIdpHint},
+	    }.Encode()
+    } else {
+        redirectURL.RawQuery = url.Values{
+		    "response_type": {"code"},
+		    "client_id":     {k.ClientID},
+		    "redirect_uri":  {originalURL},
+		    "state":         {stateBase64},
+		    "scope":         {k.Scope},
+	    }.Encode()
+    }
 
 	http.Redirect(rw, req, redirectURL.String(), http.StatusTemporaryRedirect)
 }
